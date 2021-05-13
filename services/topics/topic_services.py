@@ -3,7 +3,7 @@ from collections import defaultdict
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, reqparse
 
-from resource.models import TopicModel, TopicOptionModel
+from resource.models import TopicModel, TopicOptionModel, UserAnswerTrackModel
 
 parser = reqparse.RequestParser()
 
@@ -52,7 +52,8 @@ class CreateTopicOptions(Resource):
                 for option in data['options']:
                     new_topic_option = TopicOptionModel(
                         option=option,
-                        key=data["key"]
+                        key=data["key"],
+                        result=0
                     )
 
                     new_topic_option.save_to_db()
@@ -150,10 +151,17 @@ class ChooseOption(Resource):
         token = get_jwt_identity()
         data = parser.parse_args()
         try:
-            topic_with_options = TopicOptionModel.find_by_topic_id_option_id(data['topic_id'],data['option_id'])
-            topic_with_options.result += 1
+            user_answers = UserAnswerTrackModel.find_by_topic_option_username(data['topic_id'],token['username'])
+            if not user_answers:
+                topic_with_options = TopicOptionModel.find_by_topic_id_option_id(data['topic_id'],data['option_id'])
+                topic_with_options.result += 1
+                user_answer = UserAnswerTrackModel(username=token['username'],topic_id=data['topic_id'])
 
-            topic_with_options.save_to_db()
+                user_answer.save_to_db()
+                topic_with_options.save_to_db()
+                return {'message': 'Answer submitted'}
 
+            else:
+                return {'message': 'User already answered this topic'}, 500
         except:
             return {'message': 'Something went wrong'}, 500

@@ -1,7 +1,8 @@
 from application import db
 from passlib.hash import pbkdf2_sha256 as sha256
 
-#--------------------------------users----------------------------------
+
+# --------------------------------users----------------------------------
 class UserModel(db.Model):
     __tablename__ = 'users'
 
@@ -29,16 +30,16 @@ class UserModel(db.Model):
     @classmethod
     def admin_create_admin(cls, username, password):
         item = cls(
-                username=username,
-                password=sha256.hash(password),
-                group='admin'
-            )
+            username=username,
+            password=sha256.hash(password),
+            group='admin'
+        )
         db.session.add(item)
         db.session.commit()
 
     @classmethod
     def update_user(cls, username, updates):
-       pass
+        pass
 
     @classmethod
     def return_all(cls):
@@ -68,7 +69,8 @@ class UserModel(db.Model):
     def verify_hash(password, hash):
         return sha256.verify(password, hash)
 
-#--------------------------------topic----------------------------------
+
+# --------------------------------topic----------------------------------
 class TopicModel(db.Model):
     __tablename__ = 'topic'
 
@@ -90,19 +92,19 @@ class TopicModel(db.Model):
                 "id": x.id,
                 'topic_name': x.topic_name,
             }
+
         return {'topics': list(map(lambda x: to_json(x), TopicModel.query.all()))}
 
 
-#--------------------------------topic----------------------------------
+# --------------------------------topic----------------------------------
 class TopicOptionModel(db.Model):
     __tablename__ = 'topic_options'
 
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.Integer, db.ForeignKey('topic.id'))
     option = db.Column(db.String(120), unique=True, nullable=False)
-    result = db.Column(db.Integer, unique=True, nullable=False,default=0)
+    result = db.Column(db.Integer, unique=True, nullable=False, default=0)
     topic_name = db.relationship('TopicModel', backref='topic')
-
 
     def save_to_db(self):
         db.session.add(self)
@@ -113,8 +115,8 @@ class TopicOptionModel(db.Model):
         return cls.query.filter_by(key=topic_id).all()
 
     @classmethod
-    def find_by_topic_id_option_id(cls, topic_id,option_id):
-        return cls.query.filter_by(key=topic_id,id=option_id).first()
+    def find_by_topic_id_option_id(cls, topic_id, option_id):
+        return cls.query.filter_by(key=topic_id, id=option_id).first()
 
     @classmethod
     def return_all(cls):
@@ -128,3 +130,20 @@ class TopicOptionModel(db.Model):
             }
 
         return {'topic_options': list(map(lambda x: to_json(x), TopicOptionModel.query.all()))}
+
+
+# --------------------------------user answer tracking----------------------------------
+class UserAnswerTrackModel(db.Model):
+    __tablename__ = 'user_answers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    topic_id = db.Column(db.Integer, unique=True, nullable=False)
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def find_by_topic_option_username(cls, topic_id, username):
+        return cls.query.filter_by(topic_id=topic_id, username=username).first()
