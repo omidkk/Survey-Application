@@ -34,12 +34,21 @@ api = Api(application)
 import views
 from resource import models
 from services.users import user_services
+from services.topics import topic_services
 
 
-#-------------------------------------users--------------------------------
 
 api.add_resource(user_services.UserRegistration, '/registration')
 api.add_resource(user_services.UserLogin, '/login')
+api.add_resource(topic_services.CreateTopic, '/createTopic')
+api.add_resource(topic_services.CreateTopicOptions, '/createTopicOptions')
+api.add_resource(topic_services.GetTopicNames, '/topicNames')
+api.add_resource(topic_services.GetAllTopicOptions, '/topicsOptions')
+api.add_resource(topic_services.GetSpecificTopicOptions, '/SpecificTopicsOptions')
+api.add_resource(topic_services.GetSpecificTopicOptionsResults, '/SpecificTopicsOptionsResult')
+api.add_resource(topic_services.GetAllTopicsOptionsResults, '/AllTopicsOptionsResult')
+api.add_resource(topic_services.ChooseOption, '/ChooseOption')
+
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
