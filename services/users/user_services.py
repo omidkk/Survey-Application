@@ -20,9 +20,9 @@ class UserRegistration(Resource):
         salt = bcrypt.gensalt().decode("utf-8")
         new_user = UserModel(
             username=data['username'],
-            group ='user',
-            salt = salt,
-            password = UserModel.generate_hash(data['password'] + salt )
+            group='user',
+            salt=salt,
+            password=UserModel.generate_hash(data['password'] + salt)
         )
 
         try:
@@ -36,10 +36,13 @@ class UserRegistration(Resource):
             }
         except:
             return {'message': 'Something went wrong'}, 500
-#------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------
 class UserLogin(Resource):
     parser.add_argument('username', help='This field cannot be blank')
     parser.add_argument('password', help='This field cannot be blank')
+
     def post(self):
         data = parser.parse_args()
         current_user = UserModel.find_by_username(data['username'])
@@ -55,5 +58,57 @@ class UserLogin(Resource):
                 'refresh_token': refresh_token
             }
         else:
-            return {'message': 'Wrong credentials'} , 401
-#-----------------------------------------------------------------------------
+            return {'message': 'Wrong credentials'}, 401
+
+
+# -----------------------------------------------------------------------------
+class AdminAddToGroup(Resource):
+    parser.add_argument('username', help='This field cannot be blank')
+    parser.add_argument('group', help='This field cannot be blank')
+
+    @jwt_required()
+    def post(self):
+        data = parser.parse_args()
+        token = get_jwt_identity()
+        if token["group"] == "admin":
+            user = UserModel.find_by_username(data["username"])
+            if user:
+                UserModel.admin_add_to_group(data["username"], data["group"])
+                return {'message': 'users add to entered group successfully'}
+            else:
+                return {'message': 'this users not exist'}
+        else:
+            return {'message': 'you have not access to this api'}
+
+
+# ---------------------------------------------------------------------------
+class AdminCreateAdmin(Resource):
+    parser.add_argument('username', help='This field cannot be blank')
+    parser.add_argument('password', help='This field cannot be blank')
+
+    @jwt_required()
+    def post(self):
+        data = parser.parse_args()
+        token = get_jwt_identity()
+        if token["group"] == "admin":
+            user = UserModel.find_by_username(data["username"])
+            if user:
+                return {'message': 'this users already exist'}
+            else:
+                salt = bcrypt.gensalt().decode("utf-8")
+                new_user = UserModel(
+                    username=data['username'],
+                    group='admin',
+                    salt=salt,
+                    password=UserModel.generate_hash(data['password'] + salt)
+                )
+                new_user.save_to_db()
+                access_token = create_access_token(identity={"username": data['username'], "group": "users"})
+                refresh_token = create_refresh_token(identity={"username": data['username'], "group": "users"})
+                return {
+                    'message': 'User {} was created'.format(data['username']),
+                    'access_token': access_token,
+                    'refresh_token': refresh_token
+                }
+        else:
+            return {'message': 'you have not access to this api'}

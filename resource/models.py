@@ -28,16 +28,6 @@ class UserModel(db.Model):
         db.session.commit()
 
     @classmethod
-    def admin_create_admin(cls, username, password):
-        item = cls(
-            username=username,
-            password=sha256.hash(password),
-            group='admin'
-        )
-        db.session.add(item)
-        db.session.commit()
-
-    @classmethod
     def update_user(cls, username, updates):
         pass
 
@@ -86,6 +76,20 @@ class TopicModel(db.Model):
         return cls.query.filter_by(id=topic_id).all()
 
     @classmethod
+    def delete_by_id(cls, id):
+        db.session.query(cls).filter(cls.id == id).delete()
+        db.session.commit()
+        return {'message': 'item deleted successfully '}
+
+    @classmethod
+    def update_by_id(cls, id, update):
+        topic = db.session.query(cls).filter(cls.id == id).first()
+        topic.topic_name = update
+        db.session.commit()
+        return {'message': 'item deleted successfully '}
+
+
+    @classmethod
     def return_all(cls):
         def to_json(x):
             return {
@@ -96,7 +100,7 @@ class TopicModel(db.Model):
         return {'topics': list(map(lambda x: to_json(x), TopicModel.query.all()))}
 
 
-# --------------------------------topic----------------------------------
+# --------------------------------topic option----------------------------------
 class TopicOptionModel(db.Model):
     __tablename__ = 'topic_options'
 
@@ -117,6 +121,22 @@ class TopicOptionModel(db.Model):
     @classmethod
     def find_by_topic_id_option_id(cls, topic_id, option_id):
         return cls.query.filter_by(key=topic_id, id=option_id).first()
+
+    @classmethod
+    def delete_by_id(cls, id):
+        db.session.query(cls).filter(cls.key == id).delete()
+        db.session.commit()
+        return {'message': 'item deleted successfully '}
+
+    @classmethod
+    def update_by_id(cls, id, updates):
+        topic_options = db.session.query(cls).filter(cls.id == id).first()
+        if 'topic_id' in updates:
+            topic_options.key = int(updates['topic_id'])
+        if 'topic_option' in updates:
+            topic_options.option = updates['topic_option']
+        db.session.commit()
+        return {'message': 'item deleted successfully '}
 
     @classmethod
     def return_all(cls):
