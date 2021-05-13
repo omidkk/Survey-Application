@@ -1,8 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
 
 application = Flask(__name__)
 
@@ -30,8 +30,6 @@ def create_tables():
 
 api = Api(application)
 
-import views
-from resource import models
 from services.users import user_services
 from services.topics import topic_services
 
@@ -50,7 +48,6 @@ api.add_resource(topic_services.ChooseOption, '/ChooseOption')
 api.add_resource(topic_services.AdminDeleteTopicByid, '/topic/delete')
 api.add_resource(topic_services.AdminUpdateSurveyTopic, '/topic/update')
 api.add_resource(topic_services.AdminUpdateSurveyTopicOptions, '/topicOption/update')
-
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be

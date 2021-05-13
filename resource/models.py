@@ -1,5 +1,6 @@
-from application import db
 from passlib.hash import pbkdf2_sha256 as sha256
+
+from application import db
 
 
 # --------------------------------users----------------------------------
@@ -87,7 +88,6 @@ class TopicModel(db.Model):
         topic.topic_name = update
         db.session.commit()
         return {'message': 'item deleted successfully '}
-
 
     @classmethod
     def return_all(cls):

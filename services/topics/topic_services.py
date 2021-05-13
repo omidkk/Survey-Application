@@ -187,7 +187,8 @@ class AdminDeleteTopicByid(Resource):
             TopicOptionModel.delete_by_id(data["topic_id"])
             return {'message': 'Topic is deleted'}
         else:
-            return {'message': 'you have not access to this api'},401
+            return {'message': 'you have not access to this api'}, 401
+
 
 # -----------------------------------------------------------------------------
 
@@ -200,10 +201,11 @@ class AdminUpdateSurveyTopic(Resource):
         token = get_jwt_identity()
         data = parser.parse_args()
         if token["group"] == "admin":
-            TopicModel.update_by_id(data["topic_id"],data["topic_name"])
+            TopicModel.update_by_id(data["topic_id"], data["topic_name"])
             return {'message': 'Topic is updated'}
         else:
-            return {'message': 'you have not access to this api'},401
+            return {'message': 'you have not access to this api'}, 401
+
 
 # -----------------------------------------------------------------------------
 
@@ -218,9 +220,9 @@ class AdminUpdateSurveyTopicOptions(Resource):
         update = json.loads(data["updates"].replace("'", '"'))
         if token["group"] == "admin":
             if TopicModel.find_by_id(update["topic_id"]):
-                TopicOptionModel.update_by_id(data["option_id"],update)
+                TopicOptionModel.update_by_id(data["option_id"], update)
             else:
-                return {'message': 'Topic id is not available'},500
+                return {'message': 'Topic id is not available'}, 500
             return {'message': 'Topic is updated'}
         else:
-            return {'message': 'you have not access to this api'},401
+            return {'message': 'you have not access to this api'}, 401

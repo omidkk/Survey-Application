@@ -1,9 +1,8 @@
-from flask_restful import Resource, reqparse
-from resource.models import UserModel
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-import random
-import json
 import bcrypt
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_restful import Resource, reqparse
+
+from resource.models import UserModel
 
 parser = reqparse.RequestParser()
 
