@@ -3,6 +3,7 @@ from resource.models import UserModel
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 import random
 import json
+import bcrypt
 
 parser = reqparse.RequestParser()
 
@@ -16,11 +17,12 @@ class UserRegistration(Resource):
 
         if UserModel.find_by_username(data['username']):
             return {'message': 'User {} already exists'.format(data['username'])}
-
+        salt = bcrypt.gensalt().decode("utf-8")
         new_user = UserModel(
             username=data['username'],
-            password=UserModel.generate_hash(data['password']),
-            group='user'
+            group ='user',
+            salt = salt,
+            password = UserModel.generate_hash(data['password'] + salt )
         )
 
         try:
@@ -44,8 +46,7 @@ class UserLogin(Resource):
 
         if not current_user:
             return {'message': 'User {} doesn\'t exist'.format(data['username'])}
-
-        if UserModel.verify_hash(data['password'], current_user.password):
+        if UserModel.verify_hash(data['password'] + current_user.salt, current_user.password):
             access_token = create_access_token(identity={"username": data['username'], "group": current_user.group})
             refresh_token = create_refresh_token(identity={"username": data['username'], "group": current_user.group})
             return {
