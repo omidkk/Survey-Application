@@ -29,7 +29,6 @@ def create_tables():
 
 
 api = Api(application)
-
 from services.users import user_services
 from services.topics import topic_services
 
@@ -37,6 +36,9 @@ api.add_resource(user_services.UserRegistration, '/registration')
 api.add_resource(user_services.UserLogin, '/login')
 api.add_resource(user_services.AdminAddToGroup, '/admin/add_To_group')
 api.add_resource(user_services.AdminCreateAdmin, '/user/create/admin')
+api.add_resource(user_services.UserActivation, '/user/activate')
+api.add_resource(user_services.UserResetPassword, '/user/forgetPassword')
+
 api.add_resource(topic_services.CreateTopic, '/createTopic')
 api.add_resource(topic_services.CreateTopicOptions, '/createTopicOptions')
 api.add_resource(topic_services.GetTopicNames, '/topicNames')

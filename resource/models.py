@@ -13,6 +13,7 @@ class UserModel(db.Model):
     password = db.Column(db.String(120), nullable=False)
     salt = db.Column(db.String(120), nullable=False)
     group = db.Column(db.String(120), nullable=False)
+    status = db.Column(db.Boolean, nullable=False)
 
     def save_to_db(self):
         db.session.add(self)
@@ -29,8 +30,18 @@ class UserModel(db.Model):
         db.session.commit()
 
     @classmethod
-    def update_user(cls, username, updates):
-        pass
+    def update_status(cls, username, status):
+        user = db.session.query(cls).filter(cls.username == username).first()
+        user.status = status
+        db.session.commit()
+        return {'message': 'item updated successfully '}
+
+    @classmethod
+    def update_password(cls, username, password):
+        user = db.session.query(cls).filter(cls.username == username).first()
+        user.password = password
+        db.session.commit()
+        return {'message': 'item updated successfully '}
 
     @classmethod
     def return_all(cls):
@@ -41,7 +52,8 @@ class UserModel(db.Model):
                 'email': x.email,
                 'password': x.password,
                 "salt": x.salt,
-                "group": x.group
+                "group": x.group,
+                "status": x.status
             }
 
         return {'users': list(map(lambda x: to_json(x), UserModel.query.all()))}
