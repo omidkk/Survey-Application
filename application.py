@@ -29,6 +29,8 @@ def create_tables():
 
 
 api = Api(application)
+import views
+from resource import models
 from services.users import user_services
 from services.topics import topic_services
 
